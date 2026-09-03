@@ -13,6 +13,26 @@ All notable changes to Chharizard will be documented here. Format loosely follow
 - v5.5.0 — Chharcam (camera) — port XICamera DLL, wrap in Chharizard commands
 - v5.6.0 — Chhargear (gearswap builder) — GUI to generate `gearswap/data/JOB_Char.lua` from item DB
 
+## [5.2.0] — 2026-09-03
+
+### Added
+- **`Chharizard/src/lib/updater.ahk`** — GitHub Releases API client. Query, compare tags, download release zip, extract via `tar`, apply over repo root preserving `data/`.
+- **`Chharizard/src/lib/launcher.ahk`** — spawn Windower/Ashita, per-character or all-at-once with staggered timing to avoid PlayOnline login-server race.
+- **Update tab** — functional. Check for updates, view changelog, one-click download+install.
+- **Launcher tab** — functional. Detects framework, lists roster, launch selected or launch-all.
+
+### Changed
+- `Chharizard.ahk` bumped to v5.2.0
+- Roster changes now emit `roster:changed` — Launcher tab auto-refreshes its list
+
+### Command surface additions (all routable through future RPC)
+- `update.check`  → returns `{tag, name, body, published_at, zip_url}`
+- `update.apply`  → downloads + extracts + copies
+- `launcher.start` → spawn framework
+- `launcher.char`  → framework + tag for character
+- `launcher.all`   → sequential launch with 3s stagger
+
+
 ## [5.0.0] — TBD
 
 Umbrella rebrand from **Chharbar** to **Chharizard**. Chharbar becomes one addon under the Chharizard umbrella; the companion `.exe` orchestrates everything.
