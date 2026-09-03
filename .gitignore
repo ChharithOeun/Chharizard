@@ -1,0 +1,71 @@
+# ============================================================================
+# Chharizard .gitignore
+#
+# Rule of thumb: nothing character-specific, nothing with real names,
+# nothing with local machine paths ever hits the public repo.
+# ============================================================================
+
+# --- Character-specific config (PRIVACY) ---
+# The roster lists actual in-game FFXI character names. NEVER commit.
+**/data/roster.json
+**/data/roster.lua
+**/data/per_toon/
+**/data/state_*.lua
+**/data/state_v*.lua
+**/data/*.log
+**/data/backup.json
+**/data/enabled.json
+
+# --- Character-specific gearswap files ---
+# The public repo ships templates in gearswap/templates/ only.
+# Character-bound files go in your local Windower install, not here.
+gearswap/data/
+!gearswap/templates/
+**/*_Chharzilla.lua
+**/*_Chharith.lua
+**/*_Chharutaru.lua
+**/*_Chharlotte.lua
+**/*_Chharity.lua
+**/*_Chhardonnay.lua
+**/*_Chharburzt.lua
+
+# --- Windower runtime state ---
+scripts/init.txt
+scripts/*_init.txt
+
+# --- Compiled / build output ---
+Chharizard/build/*.exe
+Chharizard/build/*.pdb
+Chharizard/build/*.log
+*.obj
+*.pdb
+*.ilk
+*.exp
+
+# --- Tune-FFXI backups (contain machine-specific settings) ---
+tune-ffxi/Revert/
+tune-ffxi/*.log
+
+# --- Editor / OS ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# --- Temp / logs ---
+*.tmp
+*.bak
+*.old
+*.log
+!CHANGELOG.md
+
+# --- Secrets ---
+.env
+.env.local
+*.pem
+*.key
+secrets/

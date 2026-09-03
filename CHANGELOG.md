@@ -1,0 +1,40 @@
+# Changelog
+
+All notable changes to Chharizard will be documented here. Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
+
+## [Unreleased]
+
+### Planned
+- v5.0.x — Split Chharbar.lua (5658 lines) into per-module files under `addons/Chharbar/modules/`
+- v5.1.0 — Chharizard.exe skeleton (AutoHotkey v2) with Modules / Roster / Launcher / Tune / Update tabs
+- v5.2.0 — Auto-updater backed by GitHub Releases API
+- v5.3.0 — Ashita v4 compatibility layer (`core/compat_ashita.lua`) so all addons run on private servers too
+- v5.4.0 — Chharsai (automation) — port Bonsai state-machine pattern for multibox routines
+- v5.5.0 — Chharcam (camera) — port XICamera DLL, wrap in Chharizard commands
+- v5.6.0 — Chhargear (gearswap builder) — GUI to generate `gearswap/data/JOB_Char.lua` from item DB
+
+## [5.0.0] — TBD
+
+Umbrella rebrand from **Chharbar** to **Chharizard**. Chharbar becomes one addon under the Chharizard umbrella; the companion `.exe` orchestrates everything.
+
+### Added
+- Monorepo layout: `Chharizard/` (exe) + `addons/{Chharbar,Chharsai,Chharcam,Chhargear}/`
+- `.gitignore` protecting local rosters, per-character configs, character-specific gearswap files
+- Author attribution moved to `Chharizard` across all Lua headers
+- Framework abstraction plan: `core/framework.lua` with `compat_windower.lua` and (v5.3.0) `compat_ashita.lua` adapters — same modules run on both frameworks
+- Credits section in README naming every original author whose work inspired or was ported into Chharizard
+- Explicit "do not contact in-game" policy in all READMEs — support routes through GitHub only
+
+### Changed
+- `Chharbar/Chharbar.lua` split into module files (details in v5.0.0 release notes)
+- All `--Chharith` author comments in gearswap files → `--Chharizard`
+- `_addon.author = 'Chharith'` in empymerc and legacy files → `'Chharizard'`
+
+### Retained (local, gitignored)
+- Character roster (`data/roster.json`)
+- Per-character settings (`data/per_toon/*.lua`)
+- Character-specific gearswap files (`gearswap/data/*_<CharName>.lua`)
+
+## Pre-v5.0.0 (Chharbar-era)
+
+See prior git history. Chharbar reached v4.7.13 as a single-file addon with 14 chunks of functionality (Vitals, Target, ChharPT, Scoreboard, Debuffs, CastBar, Hate, WSC, Chharchat, Gearswap bridge, Silmaril, Autotarget, WSC animations, per-toon UI). Rebrand to Chharizard preserves all functionality while modularizing for maintainability and companion .exe integration.

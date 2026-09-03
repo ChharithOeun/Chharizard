@@ -1,0 +1,12 @@
+{
+  "_comment": "Copy this file to roster.json and fill in your FFXI character names. roster.json is gitignored and stays local to your machine.",
+  "characters": [
+    "YourMainChar",
+    "YourAltChar1",
+    "YourAltChar2"
+  ],
+  "main_tank":  "YourMainChar",
+  "off_tank":   "",
+  "healers":    ["YourAltChar1"],
+  "notes":      "Order in 'characters' array = display order in HUD tabs"
+}
