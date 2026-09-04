@@ -10,10 +10,10 @@ class TuneTab {
     static logEdit := ""
 
     static build(gui) {
-        gui.SetFont("s10 bold c40e0e8")
+        ThemeApply.h3(gui)
         gui.Add("Text", "x30 y50", "FFXI system tuner")
 
-        gui.SetFont("s9 cCCCCCC")
+        ThemeApply.small(gui)
         gui.Add("Text", "x30 y+5 w900",
             "Applies well-documented Windows tweaks that reduce stutter and improve "
             . "input latency for FFXI + Windower. Each change is backed up per-tweak "
@@ -25,7 +25,7 @@ class TuneTab {
             . "Reboot recommended after applying for hardware GPU scheduling / "
             . "Ndu service / MMCSS changes to take full effect.")
 
-        gui.SetFont("s9 cCCCCCC")
+        ThemeApply.small(gui)
         gui.Add("Text", "x30 y+15 w900", "What gets tuned:")
         gui.Add("Text", "x30 y+5 w900",
             "  1. Windows Defender exclusions on pol.exe + Windower folder`n"
@@ -40,7 +40,7 @@ class TuneTab {
             . " 10. Ndu (Network Data Usage) service OFF`n"
             . " 11. Verify SSD TRIM enabled")
 
-        gui.SetFont("s10 c40e0e8")
+        ThemeApply.status_ok(gui)
         gui.Add("Button", "x30 y+20 w200", "Apply tuning")
             .OnEvent("Click", (*) => TuneTab._apply())
         gui.Add("Button", "x+10 w200", "Revert tuning")
@@ -50,11 +50,11 @@ class TuneTab {
         gui.Add("Button", "x+10 w200", "Open log in Notepad")
             .OnEvent("Click", (*) => Run('notepad.exe "' . Tune.logPath() . '"'))
 
-        gui.SetFont("s10 cffd732")
+        ThemeApply.status_warn(gui)
         TuneTab.statusText := gui.Add("Text", "x30 y+20 w900 vTuneStatus",
             TuneTab._statusLine())
 
-        gui.SetFont("s9 cCCCCCC")
+        ThemeApply.small(gui)
         gui.Add("Text", "x30 y+15", "Log (last 100 lines):")
         TuneTab.logEdit := gui.Add("Edit", "x30 y+5 w900 h180 +VScroll +ReadOnly Multi vTuneLog -Wrap")
         TuneTab.logEdit.SetFont("s9 c40e0e8", "Consolas")

@@ -15,24 +15,24 @@ class ModulesTab {
     static checkboxes := Map()
 
     static build(gui) {
-        gui.SetFont("s10 bold c40e0e8")
+        ThemeApply.h3(gui)
         gui.Add("Text", "x30 y50", "Character:")
 
         roster := State.get("roster", [])
         if (roster.Length = 0)
             roster := ["(add characters in Roster tab)"]
 
-        gui.SetFont("s10 cCCCCCC")
+        ThemeApply.body(gui)
         ModulesTab.charDD := gui.Add("DropDownList", "x+10 w200 vModulesChar", roster)
         ModulesTab.charDD.Choose(1)
         ModulesTab.charDD.OnEvent("Change", (ctrl, *) => ModulesTab._loadForChar(ctrl.Text))
 
-        gui.SetFont("s9 c888888")
+        ThemeApply.muted(gui)
         gui.Add("Text", "x30 y+20 w900",
             "Toggle which HUD modules load for the selected character. Changes save "
             . "on click and take effect next //lua reload chharbar.")
 
-        gui.SetFont("s10 cCCCCCC")
+        ThemeApply.body(gui)
         y := 130
         col := 0
         for m in ModulesTab.ALL_MODULES {
@@ -45,7 +45,7 @@ class ModulesTab {
             if (col >= 4) { col := 0; y += 28 }
         }
 
-        gui.SetFont("s10 c40e0e8")
+        ThemeApply.status_ok(gui)
         gui.Add("Button", "x30 y+30 w200", "Save").OnEvent("Click", (*) => ModulesTab._save())
         gui.Add("Button", "x+10 w200",     "Enable all").OnEvent("Click", (*) => ModulesTab._all(true))
         gui.Add("Button", "x+10 w200",     "Disable all").OnEvent("Click", (*) => ModulesTab._all(false))

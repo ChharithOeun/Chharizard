@@ -12,20 +12,20 @@ class PluginsTab {
     static listCtrl := ""
 
     static build(gui) {
-        gui.SetFont("s10 bold c40e0e8")
+        ThemeApply.h3(gui)
         gui.Add("Text", "x30 y50", "Plugins")
 
-        gui.SetFont("s9 cCCCCCC")
+        ThemeApply.small(gui)
         gui.Add("Text", "x30 y+10 w900",
             "Optional .ahk plugins in the plugins/ folder. Drop a plugin file "
             . "there, restart Chharizard, and it registers itself. Future "
             . "Chharbot AI and Discord wiki-bridge will ship as plugins.")
 
         ; --- RPC status (v5.5.0) -------------------------------------------
-        gui.SetFont("s10 bold cffd732")
+        ThemeApply.h2(gui)
         gui.Add("Text", "x30 y+15", "External RPC (v5.5.0)")
 
-        gui.SetFont("s9 cCCCCCC")
+        ThemeApply.small(gui)
         rpcStatus := RPC.status()
         gui.Add("Text", "x30 y+5 w900",
             "Status: " . (rpcStatus.running ? "listening" : "stopped")
@@ -38,20 +38,20 @@ class PluginsTab {
             . "requests in inbox/ and read responses from outbox/. See "
             . "docs/RPC-PROTOCOL.md for full protocol + client examples.")
 
-        gui.SetFont("s10 c40e0e8")
+        ThemeApply.status_ok(gui)
         gui.Add("Button", "x30 y+10 w200", "Open RPC folder")
             .OnEvent("Click", (*) => Run("explorer.exe " . RPC._inbox . "\.."))
         gui.Add("Button", "x+10 w200", "Send test ping")
             .OnEvent("Click", (*) => PluginsTab._testPing())
 
         ; --- Plugins section ------------------------------------------------
-        gui.SetFont("s10 bold cffd732")
+        ThemeApply.h2(gui)
         gui.Add("Text", "x30 y+20", "Plugins")
 
         PluginsTab.listCtrl := gui.Add("ListBox", "x30 y+10 w900 h240 vPluginsList")
         PluginsTab._render()
 
-        gui.SetFont("s10 c40e0e8")
+        ThemeApply.status_ok(gui)
         gui.Add("Button", "x30 y+10 w200", "Rescan plugins/").OnEvent("Click",
             (*) => (PluginsTab.discover(), PluginsTab._render()))
         gui.Add("Button", "x+10 w200", "Open plugins folder").OnEvent("Click",

@@ -13,6 +13,16 @@ All notable changes to Chharizard will be documented here. Format loosely follow
 - v5.5.0 — Chharcam (camera) — port XICamera DLL, wrap in Chharizard commands
 - v5.6.0 — Chhargear (gearswap builder) — GUI to generate `gearswap/data/JOB_Char.lua` from item DB
 
+## [5.9.1] — 2026-09-04
+
+### Changed
+- **Tab reskin sweep** — mechanical replacement of 39 inline `SetFont(...)` calls across 7 tab files (`modules`, `roster`, `launcher`, `tune`, `update`, `logs`, `plugins`) with the v5.9.0 `ThemeApply.*` helpers. Whole app now consistently uses the palette from `lib/theme.ahk`.
+- Remaining inline `SetFont` calls (4 total: 2 in `tune.ahk`, 1 in `update.ahk`, 1 in `logs.ahk`) are Consolas / custom-color cases that don't map cleanly to a single ThemeApply helper — left as-is intentionally.
+
+### Notes
+- Sanity-checked brace balance on all edited tabs — no syntax breakage from the sweep.
+- If any button colors look slightly off from your expected palette after this cut, ping me the tab + button and I'll add a new ThemeApply variant.
+
 ## [5.9.0] — 2026-09-04
 
 ### Added

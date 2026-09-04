@@ -10,10 +10,10 @@ class RosterTab {
     static charLabel := ""
 
     static build(gui) {
-        gui.SetFont("s10 bold c40e0e8")
+        ThemeApply.h3(gui)
         gui.Add("Text", "x30 y50", "Roster")
 
-        gui.SetFont("s9 c888888")
+        ThemeApply.muted(gui)
         gui.Add("Text", "x30 y+5 w900",
             "Your in-game FFXI character names + which framework each launches "
             . "with. Saved locally in data/chharizard-state.json — never committed.")
@@ -22,21 +22,21 @@ class RosterTab {
         RosterTab.listCtrl.OnEvent("Change", (ctrl, *) => RosterTab._onSelect())
         RosterTab._refresh()
 
-        gui.SetFont("s10 cCCCCCC")
+        ThemeApply.body(gui)
         gui.Add("Text", "x450 y110", "Add character:")
         RosterTab.nameInput := gui.Add("Edit", "x450 y+5 w300 vRosterNewName")
 
-        gui.SetFont("s10 c40e0e8")
+        ThemeApply.status_ok(gui)
         gui.Add("Button", "x450 y+10 w140", "Add")
             .OnEvent("Click", (*) => RosterTab._add())
         gui.Add("Button", "x+10 w140", "Remove selected")
             .OnEvent("Click", (*) => RosterTab._remove())
 
-        gui.SetFont("s10 bold cffd732")
+        ThemeApply.h2(gui)
         RosterTab.charLabel := gui.Add("Text", "x450 y+25 w300 vRosterCharLabel",
             "Select a character to set framework")
 
-        gui.SetFont("s10 cCCCCCC")
+        ThemeApply.body(gui)
         gui.Add("Text", "x450 y+10", "Framework:")
         RosterTab.fwDropdown := gui.Add("DropDownList", "x450 y+5 w300 vRosterFw",
             ["auto (use primary detected)", "windower", "ashita"])

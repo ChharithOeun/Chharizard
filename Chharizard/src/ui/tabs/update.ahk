@@ -8,23 +8,23 @@ class UpdateTab {
     static applyBtn := ""
 
     static build(gui) {
-        gui.SetFont("s10 bold c40e0e8")
+        ThemeApply.h3(gui)
         gui.Add("Text", "x30 y50", "Chharizard update")
 
-        gui.SetFont("s9 cCCCCCC")
+        ThemeApply.small(gui)
         gui.Add("Text", "x30 y+5 w900",
             "Checks the latest release at " . CHZ.repo . "/releases and offers "
             . "a one-click upgrade. Your local data/ folder is preserved.")
 
-        gui.SetFont("s10 c40e0e8")
+        ThemeApply.status_ok(gui)
         ; v5.4.2: auto-check on launch preference
         autoOn := State.get("auto_update_on_launch", true)
-        gui.SetFont("s9 cCCCCCC")
+        ThemeApply.small(gui)
         cb := gui.Add("Checkbox", "x30 y+15 vUpdateAutoCheck", "Check for updates automatically when Chharizard starts")
         cb.Value := autoOn ? 1 : 0
         cb.OnEvent("Click", (ctrl, *) => (State.set("auto_update_on_launch", ctrl.Value = 1), State.save()))
 
-        gui.SetFont("s10 c40e0e8")
+        ThemeApply.status_ok(gui)
         gui.Add("Button", "x30 y+15 w200", "Check for updates")
             .OnEvent("Click", (*) => UpdateTab._check())
         gui.Add("Button", "x+10 w200 vUpdateApplyBtn", "Download and install")
@@ -35,10 +35,10 @@ class UpdateTab {
         gui.Add("Button", "x+10 w200", "Open releases page")
             .OnEvent("Click", (*) => Run(CHZ.repo . "/releases"))
 
-        gui.SetFont("s10 cffd732")
+        ThemeApply.status_warn(gui)
         UpdateTab.statusText := gui.Add("Text", "x30 y+20 w900 vUpdateStatus", "Not checked yet.")
 
-        gui.SetFont("s9 cCCCCCC")
+        ThemeApply.small(gui)
         gui.Add("Text", "x30 y+15", "Changelog:")
         UpdateTab.bodyEdit := gui.Add("Edit", "x30 y+5 w900 h300 +VScroll +ReadOnly Multi vUpdateBody -Wrap")
         UpdateTab.bodyEdit.SetFont("s9 c40e0e8", "Consolas")
