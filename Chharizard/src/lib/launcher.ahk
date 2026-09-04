@@ -37,7 +37,7 @@ class Launcher {
         if (exe = "")
             throw Error("No framework available for " . char)
         log("[Launcher] " . char . " -> " . exe . " (fw=" . fw . ")")
-        Run(exe, SubStr(exe, 1, InStr(exe, "", , -1) - 1))
+        Run(exe, SubStr(exe, 1, InStr(exe, "\", , -1) - 1))
         Events.emit("launcher:char", { name: char, framework: fw, exe: exe })
         return char
     }

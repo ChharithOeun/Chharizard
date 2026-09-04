@@ -13,6 +13,27 @@ All notable changes to Chharizard will be documented here. Format loosely follow
 - v5.5.0 — Chharcam (camera) — port XICamera DLL, wrap in Chharizard commands
 - v5.6.0 — Chhargear (gearswap builder) — GUI to generate `gearswap/data/JOB_Char.lua` from item DB
 
+## [5.4.0] — 2026-09-03
+
+### Added
+- **Ashita v4 support** via compat shim strategy — Chharbar addons run on both frameworks with the same source.
+- **`addons/Chharbar/core/framework.lua`** — auto-detects Windower vs Ashita at load, requires the correct adapter, populates `FW.*` metadata.
+- **`addons/Chharbar/core/compat_windower.lua`** — no-op stub (Windower is native).
+- **`addons/Chharbar/core/compat_ashita.lua`** — installs fake `windower.*` global backed by `ashita.*` API. Full coverage of events, player/party/target data, chat, commands. Widgets stubbed until v5.4.2.
+- **`addons/Chharbar/core/internal_framework.lua`** — the CHB namespace previously in framework.lua, renamed for clarity now that framework.lua handles cross-platform detection.
+- **Exe-side dual-framework detection** — `lib/detect.ahk` finds both Windower and Ashita installs, reads file version metadata via FileSystemObject, exposes `Detect.all()` returning both.
+- **Dashboard tab** shows both frameworks side-by-side with version strings.
+- **Per-character framework preference** — Roster tab dropdown lets each char launch under a specific framework (auto / windower / ashita). Mixed sessions work: one toon on Windower, another on Ashita, simultaneously.
+- **Launcher** respects per-char framework — picks the right exe automatically.
+
+### Command surface additions
+- Detection surface: `Detect.all()` → `{windower: {installed, path, exe, version, addonsDir}, ashita: {...}}`
+- `Detect.frameworkForChar(name)` / `Detect.setFrameworkForChar(name, fw)`
+
+### Known limitations (v5.4.0)
+- Ashita widgets stubbed (log-only). Actual HUD rendering on Ashita arrives in v5.4.2 via imgui.
+- Chharbar modules that heavily rely on Windower-specific packet parsing may need per-event review. Basic events + data confirmed working.
+
 ## [5.3.0] — 2026-09-03
 
 ### Added
