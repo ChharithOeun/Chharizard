@@ -1,3 +1,4 @@
+# Version: 1.0.0
 # ============================================================================
 # REVERT-FFXI.ps1  —  undoes everything TUNE-FFXI applied
 # Reads Revert\backup.json and restores every reg key, service startup,

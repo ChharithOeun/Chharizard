@@ -13,6 +13,26 @@ All notable changes to Chharizard will be documented here. Format loosely follow
 - v5.5.0 — Chharcam (camera) — port XICamera DLL, wrap in Chharizard commands
 - v5.6.0 — Chhargear (gearswap builder) — GUI to generate `gearswap/data/JOB_Char.lua` from item DB
 
+## [5.6.0] — 2026-09-04
+
+### Added
+- **`manifest.json`** at repo root — declares known-good version of every component the current Chharizard.exe ships with. Bundled per release.
+- **`lib/compat.ahk`** — version self-recovery. Reads `manifest.json` + parses local component versions from file headers (Lua `_addon.version`, PS1 `# Version:`, AHK `version:`), compares, reports drift.
+- **Dashboard "Version health" panel** — grid showing every component with Expected / Local / Status / Note columns. Green when all match, red when drift detected.
+- **One-click "Repair drift" button** — invokes `compat.repair` which runs the updater to pull the exact versions declared in the current release's manifest.
+- **`# Version: 1.0.0` markers** in `TUNE-FFXI.ps1` and `REVERT-FFXI.ps1` so compat can parse them.
+
+### Command surface additions
+- `compat.scan`    → array of per-component reports
+- `compat.summary` → `{total, ok, drift, missing, healthy}`
+- `compat.repair`  → invokes update.apply when drift found
+
+## [5.5.1] — 2026-09-04
+
+### Fixed
+- **RPC path resolution bug** — `A_ScriptDir . "\..\..\..\data"` was resolving one level too high (into `%USERPROFILE%\Documents\` instead of `%USERPROFILE%\Documents\Chharizard\`). Fixed to `\..\..\data`. Affects: state.ahk (state file + repo path), log.ahk (log file), rpc.ahk (inbox/outbox), commands.ahk (log.tail).
+- **Result:** RPC folders now correctly create at `data/rpc/inbox/` and `data/rpc/outbox/` inside the Chharizard repo root. External RPC clients now work.
+
 ## [5.5.0] — 2026-09-04
 
 ### Added
