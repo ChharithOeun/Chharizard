@@ -20,7 +20,7 @@
 ; ----------------------------------------------------------------------------
 global CHZ := {
     name:    "Chharizard",
-    version: "5.3.0",
+    version: "5.4.2",
     author:  "Chharizard",
     repo:    "https://github.com/ChharithOeun/Chharizard",
     api:     "https://api.github.com/repos/ChharithOeun/Chharizard/releases/latest"
@@ -83,6 +83,53 @@ RPC.start()
 ; Build and show the main window.
 MainWindow.build()
 MainWindow.show()
+
+; ----------------------------------------------------------------------------
+; Auto-update-on-launch (v5.4.2)
+;
+; Non-blocking check: fires after the main window is visible so the user
+; sees the UI immediately even if GitHub is slow. Opt-out via state pref.
+; ----------------------------------------------------------------------------
+if (State.get("auto_update_on_launch", true)) {
+    SetTimer(() => AutoUpdateCheck(), -1500)   ; 1.5s delay after launch
+}
+
+AutoUpdateCheck() {
+    try {
+        result := Commands.run("update.check")
+        if (!result.ok)
+            return
+        info := result.data
+        cmp := Updater.compare(info.tag)
+        if (cmp <= 0)
+            return
+        ; Newer version available. Prompt.
+        answer := MsgBox(
+            "Chharizard update available!`n`n"
+            . "Current: " . CHZ.version . "`n"
+            . "Latest:  " . info.tag . "`n`n"
+            . "Changelog:`n" . SubStr(info.body, 1, 800) . "`n`n"
+            . "Download and install now?",
+            "Chharizard update", "YesNo Iconi")
+        if (answer = "Yes") {
+            log("[AutoUpdate] user accepted; applying " . info.tag)
+            applyResult := Commands.run("update.apply")
+            if (applyResult.ok) {
+                MsgBox("Update installed. Chharizard will now restart to load " . info.tag . ".",
+                    "Update complete", "OK Iconi")
+                Run(A_ScriptFullPath)
+                ExitApp()
+            } else {
+                MsgBox("Update apply failed: " . applyResult.error,
+                    "Update failed", "OK IconX")
+            }
+        } else {
+            log("[AutoUpdate] user declined " . info.tag)
+        }
+    } catch as e {
+        log("[AutoUpdate] check failed: " . e.Message)
+    }
+}
 
 ; Autoclose event handler wires state.save() on window close.
 OnExit(ShutdownHandler)

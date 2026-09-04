@@ -275,40 +275,147 @@ end
 W.addon_path = (_G.addon and _G.addon.path) or ''
 W.pol_path   = ''  -- Ashita doesn't expose pol_path; leave blank
 
--- --- Widget stubs (v5.4.2 will replace with imgui rendering) ---------------
-W.text = {}
-function W.text.create(name)  return W.text.new({ name = name }) end
-function W.text.new(opts)
-    -- Return a widget object with the windower.texts API surface. Currently
-    -- no-ops with a warning on first use so modules keep loading. v5.4.2
-    -- will make these render via imgui.
-    local widget = { _shown = false, _opts = opts, _text = '' }
-    function widget:show()    self._shown = true end
-    function widget:hide()    self._shown = false end
-    function widget:text(s)   self._text = s end
-    function widget:pos(x, y) self._opts.x, self._opts.y = x, y end
-    function widget:size(s)   self._opts.size = s end
-    function widget:color(r, g, b) end
-    function widget:bg_color(r, g, b) end
-    function widget:bg_alpha(a) end
-    function widget:bg_visible(v) end
-    function widget:visible(v)     self._shown = v end
-    function widget:destroy() end
-    return widget
+-- --- Widget rendering via imgui (v5.4.2) -----------------------------------
+-- All widgets register into a central registry. A single d3d_present handler
+-- iterates the registry each frame and draws visible widgets via imgui.
+-- This keeps per-widget code tiny and lets us add features (borders, gradients,
+-- pulse animations) to every widget by editing one place.
+
+local _widgets = {}
+local _next_id = 0
+local function _mkid() _next_id = _next_id + 1; return 'chz_' .. _next_id end
+
+-- Convert 0-255 to 0.0-1.0 for imgui
+local function _rgba(c)
+    local r = (c[1] or 255) / 255
+    local g = (c[2] or 255) / 255
+    local b = (c[3] or 255) / 255
+    local a = (c[4] or 255) / 255
+    return r, g, b, a
 end
 
+local function _make_text_widget(opts)
+    opts = opts or {}
+    local w = {
+        _id           = _mkid(),
+        _kind         = 'text',
+        _shown        = false,
+        _text         = opts.text or '',
+        _x            = opts.pos and opts.pos.x or 0,
+        _y            = opts.pos and opts.pos.y or 0,
+        _color        = {255, 255, 255, 255},
+        _bg_color     = {0, 0, 0, 200},
+        _bg_visible   = false,
+        _size         = opts.size or 12,
+        _font         = opts.font or 'Arial',
+        _stroke_w     = 0,
+        _stroke_color = {0, 0, 0, 255},
+        _right_just   = false,
+    }
+    function w:show()          self._shown = true end
+    function w:hide()          self._shown = false end
+    function w:visible(v)      self._shown = v and true or false end
+    function w:text(s)         self._text = tostring(s or '') end
+    function w:pos(x, y)       self._x, self._y = x, y end
+    function w:pos_x(x)        self._x = x end
+    function w:pos_y(y)        self._y = y end
+    function w:size(s)         self._size = s end
+    function w:color(r, g, b)  self._color = {r, g, b, self._color[4] or 255} end
+    function w:alpha(a)        self._color[4] = a end
+    function w:bg_color(r, g, b) self._bg_color = {r, g, b, self._bg_color[4] or 200} end
+    function w:bg_alpha(a)     self._bg_color[4] = a end
+    function w:bg_visible(v)   self._bg_visible = v and true or false end
+    function w:font(name)      self._font = name end
+    function w:stroke_width(n) self._stroke_w = n end
+    function w:stroke_color(r, g, b) self._stroke_color = {r, g, b, 255} end
+    function w:right_justified(b) self._right_just = b end
+    function w:destroy()       _widgets[self._id] = nil end
+    function w:extents()       return #self._text * (self._size * 0.6), self._size + 4 end
+    _widgets[w._id] = w
+    return w
+end
+
+local function _make_image_widget(opts)
+    opts = opts or {}
+    local w = {
+        _id     = _mkid(),
+        _kind   = 'image',
+        _shown  = false,
+        _path   = opts.path or '',
+        _x      = opts.pos and opts.pos.x or 0,
+        _y      = opts.pos and opts.pos.y or 0,
+        _width  = opts.size and opts.size.width or 32,
+        _height = opts.size and opts.size.height or 32,
+        _alpha  = 255,
+    }
+    function w:show()      self._shown = true end
+    function w:hide()      self._shown = false end
+    function w:visible(v)  self._shown = v and true or false end
+    function w:path(p)     self._path = p end
+    function w:pos(x, y)   self._x, self._y = x, y end
+    function w:size(w2, h) self._width, self._height = w2, h end
+    function w:alpha(a)    self._alpha = a end
+    function w:destroy()   _widgets[self._id] = nil end
+    _widgets[w._id] = w
+    return w
+end
+
+W.text = {}
+function W.text.create(name) return _make_text_widget({ name = name }) end
+function W.text.new(...)     return _make_text_widget(select(1, ...)) end
+
 W.image = {}
-function W.image.new(opts)
-    local img = { _shown = false, _opts = opts }
-    function img:show() self._shown = true end
-    function img:hide() self._shown = false end
-    function img:path(p) end
-    function img:pos(x, y) end
-    function img:size(w, h) end
-    function img:alpha(a) end
-    function img:visible(v) self._shown = v end
-    function img:destroy() end
-    return img
+function W.image.new(...)    return _make_image_widget(select(1, ...)) end
+
+-- Central per-frame draw. Registered once at load. Iterates all visible
+-- widgets and calls imgui to render them.
+--
+-- imgui window pattern: use SetNextWindowPos + Begin with NoDecoration flags
+-- to draw text at an absolute screen position without a chrome window.
+local WINDOW_FLAGS = 0
+if imgui then
+    -- Compose flags. Values from Ashita's imgui binding (imgui.WindowFlags):
+    -- NoTitleBar (1), NoResize (2), NoMove (4), NoScrollbar (8), NoBackground (128),
+    -- NoInputs (512), AlwaysAutoResize (64), NoSavedSettings (1024)
+    WINDOW_FLAGS = 1 + 2 + 4 + 8 + 128 + 512 + 64 + 1024
+end
+
+local function _draw_all()
+    if not imgui then return end
+    for id, w in pairs(_widgets) do
+        if w._shown then
+            imgui.SetNextWindowPos(w._x, w._y)
+            imgui.SetNextWindowBgAlpha(0.0)  -- outer window transparent; we draw bg ourselves
+            if imgui.Begin('##' .. w._id, true, WINDOW_FLAGS) then
+                if w._kind == 'text' then
+                    -- Draw background rect if enabled
+                    if w._bg_visible then
+                        local r, g, b, a = _rgba(w._bg_color)
+                        imgui.PushStyleColor(2, r, g, b, a)  -- ChildBg
+                        local tw, th = w:extents()
+                        imgui.BeginChild('##bg_' .. w._id, tw + 8, th + 4, false)
+                        imgui.EndChild()
+                        imgui.PopStyleColor(1)
+                        imgui.SetCursorPos(4, 2)
+                    end
+                    -- Draw text
+                    local r, g, b, a = _rgba(w._color)
+                    imgui.PushStyleColor(0, r, g, b, a)  -- Text
+                    imgui.TextUnformatted(w._text)
+                    imgui.PopStyleColor(1)
+                elseif w._kind == 'image' then
+                    -- Ashita imgui image loading: requires a texture id from
+                    -- the primitive manager. For v5.4.2 we log and skip until
+                    -- image support lands in v5.4.3.
+                end
+                imgui.End()
+            end
+        end
+    end
+end
+
+if ashita and ashita.events and ashita.events.register then
+    ashita.events.register('d3d_present', 'chz_draw_all', _draw_all)
 end
 
 -- ----------------------------------------------------------------------------
