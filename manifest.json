@@ -1,6 +1,6 @@
 {
   "manifest_version": 1,
-  "chharizard": "5.7.0",
+  "chharizard": "5.8.0",
   "released_at": "2026-09-04",
   "components": {
     "Chharbar": {
@@ -20,6 +20,12 @@
       "version": "1.0.0",
       "requires_exe": ">=5.3.0",
       "type": "powershell-script"
+    },
+    "Chharcam": {
+      "path": "addons/Chharcam/Chharcam.lua",
+      "version": "5.8.0",
+      "requires_exe": ">=5.8.0",
+      "type": "lua-addon"
     }
   },
   "planned": {

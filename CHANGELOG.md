@@ -13,6 +13,17 @@ All notable changes to Chharizard will be documented here. Format loosely follow
 - v5.5.0 — Chharcam (camera) — port XICamera DLL, wrap in Chharizard commands
 - v5.6.0 — Chhargear (gearswap builder) — GUI to generate `gearswap/data/JOB_Char.lua` from item DB
 
+## [5.8.0] — 2026-09-04
+
+### Added
+- **Chharcam** — new sibling addon under `addons/Chharcam/`. Camera distance + pan-speed control ported from Hokuten's XICamera v0.7.8 (BSD 3-clause). Bundles `_XICamera.dll` verbatim (MD5 `99b0d3e58f5efc9a5adb8e53d4bd5230` published for tamper-check).
+- Commands under `//cam` / `//chharcam` / `//camera` — distance, battle distance, pan speed, incr/decr, status, help.
+- `data/settings.example.xml` template.
+- `manifest.json` component entry for Chharcam.
+
+### Known limits (v5.8.0)
+- **Windower 4 only.** Ashita v4 port deferred to v5.8.1 — needs either a rebuilt DLL for Ashita's hook path or an imgui-based reimplementation.
+
 ## [5.7.0] — 2026-09-04
 
 ### Audit — fixed
