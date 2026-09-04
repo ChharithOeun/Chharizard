@@ -1,5 +1,8 @@
 ; ============================================================================
-; ui/tabs/dashboard.ahk  —  status overview + version health.
+; ui/tabs/dashboard.ahk  —  themed status overview (v5.9.0)
+;
+; Reference implementation for the new theme system. Other tabs can use
+; the same ThemeApply.* helpers to stay consistent.
 ; ============================================================================
 
 class DashboardTab {
@@ -9,77 +12,69 @@ class DashboardTab {
     static healthList := ""
 
     static build(gui) {
-        gui.SetFont("s14 bold c40e0e8")
-        gui.Add("Text", "x30 y50", "Welcome, Chharizard.")
+        ThemeApply.title(gui)
+        gui.Add("Text", "x30 y40", "Welcome, Chharizard.")
 
-        gui.SetFont("s10 cCCCCCC")
-        gui.Add("Text", "x30 y+10 w900",
+        ThemeApply.body(gui)
+        gui.Add("Text", "x30 y+8 w900",
             "Manage every character in your multibox from one window. "
-            . "Supports Windower 4 (retail) and Ashita v4 (private servers), "
-            . "including mixed-framework sessions.")
+            . "Supports Windower 4 and Ashita v4, including mixed sessions.")
 
-        gui.SetFont("s10 bold cffd732")
+        ThemeApply.h2(gui)
         gui.Add("Text", "x30 y+20", "Frameworks detected")
 
-        gui.SetFont("s10 c40e0e8")
+        ThemeApply.status_ok(gui)
         DashboardTab.wStatus := gui.Add("Text", "x30 y+8 w900 vDashWindower", "")
-        DashboardTab.aStatus := gui.Add("Text", "x30 y+5 w900 vDashAshita", "")
+        DashboardTab.aStatus := gui.Add("Text", "x30 y+5 w900 vDashAshita",   "")
 
-        gui.SetFont("s10 bold cffd732")
+        ThemeApply.h2(gui)
         gui.Add("Text", "x30 y+20", "Version health")
 
-        gui.SetFont("s10 c40e0e8")
+        ThemeApply.status_ok(gui)
         DashboardTab.healthStatus := gui.Add("Text", "x30 y+8 w900 vDashHealth", "Scanning...")
 
-        gui.SetFont("s9 cCCCCCC")
+        ThemeApply.small(gui)
         DashboardTab.healthList := gui.Add("ListView",
-            "x30 y+5 w900 h180 vDashHealthList Grid -Multi",
+            "x30 y+5 w900 h160 vDashHealthList Grid -Multi Background" . Theme.panel_dim,
             ["Component", "Expected", "Local", "Status", "Note"])
-        DashboardTab.healthList.ModifyCol(1, 160)
+        DashboardTab.healthList.ModifyCol(1, 150)
         DashboardTab.healthList.ModifyCol(2, 80)
         DashboardTab.healthList.ModifyCol(3, 80)
         DashboardTab.healthList.ModifyCol(4, 90)
-        DashboardTab.healthList.ModifyCol(5, 460)
+        DashboardTab.healthList.ModifyCol(5, 480)
 
         DashboardTab._refresh()
 
-        gui.SetFont("s9 c888888")
-        gui.Add("Text", "x30 y+10", "Repo:    " . Config.repoRoot())
-        gui.Add("Text", "x30 y+5",  "Version: " . CHZ.version)
+        ThemeApply.muted(gui)
+        gui.Add("Text", "x30 y+8", "Repo:    " . Config.repoRoot())
+        gui.Add("Text", "x30 y+3", "Version: " . CHZ.version)
 
-        gui.SetFont("s9 cFFD732")
-        gui.Add("Text", "x30 y+15", "Actions:")
+        ThemeApply.accent_pink(gui)
+        gui.Add("Text", "x30 y+15", "Actions")
 
-        gui.SetFont("s10 c40e0e8")
-        gui.Add("Button", "x30 y+8 w180", "Re-detect frameworks")
+        ThemeApply.h3(gui)
+        gui.Add("Button", "x30 y+5 w180 Background" . Theme.panel, "Re-detect frameworks")
             .OnEvent("Click", (*) => (Config.detect(), DashboardTab._refresh()))
-
-        gui.Add("Button", "x+8 w180", "Re-scan versions")
+        gui.Add("Button", "x+8 w180 Background" . Theme.panel, "Re-scan versions")
             .OnEvent("Click", (*) => DashboardTab._refresh())
-
-        gui.Add("Button", "x+8 w180", "Repair drift")
+        gui.Add("Button", "x+8 w180 Background" . Theme.panel, "Repair drift")
             .OnEvent("Click", (*) => DashboardTab._repair())
-
-        gui.Add("Button", "x+8 w180", "Open repo folder")
+        gui.Add("Button", "x+8 w180 Background" . Theme.panel, "Open repo folder")
             .OnEvent("Click", (*) => Run("explorer.exe " . Config.repoRoot()))
-
-        gui.Add("Button", "x+8 w130", "Open GitHub")
+        gui.Add("Button", "x+8 w130 Background" . Theme.panel, "Open GitHub")
             .OnEvent("Click", (*) => Run(CHZ.repo))
     }
 
     static _refresh() {
-        ; Frameworks
         info := Detect.all()
-        wLine := info.windower.installed
-            ? ("[+] Windower " . info.windower.version . "  at  " . info.windower.path)
-            : ("[ ] Windower not detected")
-        aLine := info.ashita.installed
-            ? ("[+] Ashita " . info.ashita.version . "  at  " . info.ashita.path)
-            : ("[ ] Ashita not detected (private-server support)")
-        DashboardTab.wStatus.Text := wLine
-        DashboardTab.aStatus.Text := aLine
+        w := info.windower, a := info.ashita
+        DashboardTab.wStatus.Text := w.installed
+            ? ("[+] Windower " . w.version . "  at  " . w.path)
+            : "[ ] Windower not detected"
+        DashboardTab.aStatus.Text := a.installed
+            ? ("[+] Ashita " . a.version . "  at  " . a.path)
+            : "[ ] Ashita not detected (private-server support)"
 
-        ; Version health
         report := Commands.run("compat.scan")
         summary := Commands.run("compat.summary")
         DashboardTab.healthList.Delete()
@@ -89,15 +84,14 @@ class DashboardTab {
         }
         if (summary.ok) {
             s := summary.data
-            healthLine := s.healthy
-                ? "[+] All " . s.total . " components healthy."
-                : "[!] " . s.drift . " drift, " . s.missing . " missing out of " . s.total . " components. Click 'Repair drift' to fix."
-            DashboardTab.healthStatus.Text := healthLine
+            DashboardTab.healthStatus.Text := s.healthy
+                ? ("[+] All " . s.total . " components healthy.")
+                : ("[!] " . s.drift . " drift, " . s.missing . " missing out of " . s.total . " components. Click 'Repair drift' to fix.")
         }
     }
 
     static _repair() {
-        ans := MsgBox("Run auto-repair? This will pull the latest release from GitHub and re-sync any drifted or missing components.",
+        ans := MsgBox("Run auto-repair? Pulls the latest release from GitHub and re-syncs any drifted or missing components.",
             "Repair components", "0x21")
         if (ans != "OK") return
         result := Commands.run("compat.repair")

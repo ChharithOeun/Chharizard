@@ -13,6 +13,22 @@ All notable changes to Chharizard will be documented here. Format loosely follow
 - v5.5.0 — Chharcam (camera) — port XICamera DLL, wrap in Chharizard commands
 - v5.6.0 — Chhargear (gearswap builder) — GUI to generate `gearswap/data/JOB_Char.lua` from item DB
 
+## [5.9.0] — 2026-09-04
+
+### Added
+- **`lib/theme.ahk`** — central palette (cyan `#40e0e8` / pink `#ff2e97` / yellow `#ffd732` on brick `#0d0810`) + font families (Georgia italic titles, Segoe UI body, Consolas mono) matching the Chharizard banner. `ThemeApply.*` helpers so tabs don't repeat verbose SetFont calls.
+- **Banner strip at top of main window** — `assets/banner.png` loaded via Gui.Add("Picture"), 1000×140 fixed strip. Graceful fallback to a text title if the PNG is missing.
+- **Dark title bar** — `DwmSetWindowAttribute(20, 1)` via DllCall to `dwmapi.dll`. Wrapped in try/catch so pre-Win10-1909 systems silently keep the default title bar.
+- **Dashboard rewritten** using theme constants as the reference implementation for tab authors.
+
+### Changed
+- `main_window.ahk` — banner + themed tab control (Background color, no margins), status strip in `text_muted`
+- `Chharizard.ahk` bumped to v5.9.0; `#Include lib\theme.ahk` added
+- Tab authors can drop in `ThemeApply.title(gui)`, `ThemeApply.h2(gui)`, `ThemeApply.body(gui)`, `ThemeApply.status_ok(gui)`, etc. for consistent look
+
+### Deferred (per-tab reskin rollout)
+- Modules / Roster / Launcher / Tune / Update / Logs / Plugins tabs still use inline color literals. Ships in v5.9.1 (mechanical sed pass over each tab file to replace hardcoded colors with ThemeApply calls).
+
 ## [5.8.0] — 2026-09-04
 
 ### Added

@@ -1,5 +1,9 @@
 ; ============================================================================
-; ui/main_window.ahk  —  the single top-level window with tabs.
+; ui/main_window.ahk  —  themed main window with banner + tabbed content.
+;
+; v5.9.0: full theme adoption — Chharizard banner across the top, dark title
+; bar, cyan/pink/yellow palette everywhere. Each tab file gets a themed base
+; via gui.SetFont() applied before UseTab().
 ; ============================================================================
 
 class MainWindow {
@@ -7,17 +11,29 @@ class MainWindow {
     static tabCtrl := ""
 
     static build() {
-        MainWindow.gui := Gui("+Resize", CHZ.name . " " . CHZ.version)
-        MainWindow.gui.MarginX := 8
-        MainWindow.gui.MarginY := 8
-        MainWindow.gui.BackColor := "1a1018"
+        MainWindow.gui := Gui("+Resize -DPIScale", CHZ.name . " " . CHZ.version)
+        MainWindow.gui.MarginX := 0
+        MainWindow.gui.MarginY := 0
+        MainWindow.gui.BackColor := Theme.bg
 
-        MainWindow.gui.SetFont("s10 c0abde3", "Segoe UI")
+        ; --- Banner strip at the top --------------------------------------
+        bannerPath := A_ScriptDir . "\..\assets\banner.png"
+        if (FileExist(bannerPath)) {
+            MainWindow.gui.Add("Picture", "x0 y0 w1000 h140", bannerPath)
+        } else {
+            ; No banner image found — fall back to a text title.
+            ThemeApply.title(MainWindow.gui)
+            MainWindow.gui.Add("Text", "x20 y40 w960 h60 Center", "Chharizard")
+        }
 
-        MainWindow.tabCtrl := MainWindow.gui.Add("Tab3", "w960 h600 vMainTab",
+        ; --- Themed base font applied BEFORE tabs are built --------------
+        ThemeApply.body(MainWindow.gui)
+
+        ; --- Tab control below the banner ---------------------------------
+        MainWindow.tabCtrl := MainWindow.gui.Add("Tab3",
+            "x8 y150 w984 h520 vMainTab Background" . Theme.bg,
             ["Dashboard", "Modules", "Roster", "Launcher", "Tune", "Update", "Logs", "Plugins"])
 
-        ; Delegate each tab to its own build function
         MainWindow.tabCtrl.UseTab("Dashboard")
         DashboardTab.build(MainWindow.gui)
 
@@ -44,16 +60,18 @@ class MainWindow {
 
         MainWindow.tabCtrl.UseTab()
 
-        ; Status bar at the bottom
-        MainWindow.gui.SetFont("s8 c888888")
-        MainWindow.gui.Add("Text", "xm y+8 w960", "v" . CHZ.version . "  |  "
+        ; --- Status strip at bottom ---------------------------------------
+        ThemeApply.muted(MainWindow.gui)
+        statusLine := "v" . CHZ.version . "  |  "
             . (Config.framework = "none" ? "no framework detected" : Config.framework . " @ " . Config.frameworkPath)
-            . "  |  " . CHZ.repo)
+            . "  |  " . CHZ.repo
+        MainWindow.gui.Add("Text", "x8 y+8 w984 Center", statusLine)
     }
 
     static show() {
-        MainWindow.gui.Show("w980 h680")
-        log("Main window shown")
+        MainWindow.gui.Show("w1000 h720")
+        DarkTitleBar(MainWindow.gui)   ; apply dark title bar after HWND exists
+        log("Main window shown (themed)")
     }
 
     static hide() {
