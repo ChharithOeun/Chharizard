@@ -1,5 +1,7 @@
 ; ============================================================================
-; lib/detect.ahk  —  detect Windower / Ashita install locations and characters
+; lib/detect.ahk  —  detect Windower / Ashita installs, versions, and per-
+; character framework preference. Both frameworks can be installed side by
+; side; Chharizard deploys addons to whichever is preferred per character.
 ; ============================================================================
 
 class Detect {
@@ -8,47 +10,104 @@ class Detect {
         "D:\Windower",
         "C:\Program Files\Windower",
         "C:\Program Files (x86)\Windower",
-        A_UserProfile . "\Windower"
+        A_UserProfile . "\Windower",
+        A_UserProfile . "\Desktop\Windower"
     ]
 
     static _ashitaCandidates := [
-        "C:\Ashita",
-        "D:\Ashita",
-        "C:\Ashita-v4",
-        "D:\Ashita-v4",
+        "C:\Ashita",         "D:\Ashita",
+        "C:\Ashita-v4",      "D:\Ashita-v4",
+        "C:\Program Files\Ashita",
+        "C:\Program Files (x86)\Ashita",
         A_UserProfile . "\Ashita",
-        A_UserProfile . "\Ashita-v4"
+        A_UserProfile . "\Ashita-v4",
+        A_UserProfile . "\Desktop\Ashita",
+        A_UserProfile . "\Desktop\Ashita-v4"
     ]
 
+    ; Returns the "primary" framework name for the Config.framework legacy
+    ; field. Prefers Windower if both are installed unless per-char pref
+    ; says otherwise.
     static framework() {
-        hasWindower := Detect._findFirst(Detect._windowerCandidates, "windower.exe") != ""
-        hasAshita   := Detect._findFirst(Detect._ashitaCandidates, "Ashita.exe") != ""
-        if (hasWindower && hasAshita) return "both"
-        if (hasWindower) return "windower"
-        if (hasAshita)   return "ashita"
+        results := Detect.all()
+        if (results.windower.installed && results.ashita.installed) return "both"
+        if (results.windower.installed) return "windower"
+        if (results.ashita.installed)   return "ashita"
         return "none"
     }
 
     static frameworkPath() {
-        p := Detect._findFirst(Detect._windowerCandidates, "windower.exe")
-        if (p != "") return p
-        p := Detect._findFirst(Detect._ashitaCandidates, "Ashita.exe")
-        if (p != "") return p
+        results := Detect.all()
+        if (results.windower.installed) return results.windower.path
+        if (results.ashita.installed)   return results.ashita.path
         return ""
     }
 
-    static _findFirst(candidates, exeName) {
-        for dir in candidates {
-            if (FileExist(dir . "\" . exeName))
-                return dir
+    ; Full detection report. Chharizard.exe uses this for the Dashboard tab
+    ; and to route each character's launch to the right framework.
+    static all() {
+        w := Detect._detectOne(Detect._windowerCandidates, "windower.exe")
+        a := Detect._detectOne(Detect._ashitaCandidates, "Ashita.exe")
+        return {
+            windower: {
+                installed: w.path != "",
+                path:      w.path,
+                exe:       w.exe,
+                version:   w.version,
+                addonsDir: (w.path != "") ? w.path . "\addons" : ""
+            },
+            ashita: {
+                installed: a.path != "",
+                path:      a.path,
+                exe:       a.exe,
+                version:   a.version,
+                addonsDir: (a.path != "") ? a.path . "\addons" : ""
+            }
         }
-        return ""
     }
 
-    ; List characters by scanning existing enabled_by_char map + Windower's
-    ; character-specific data folders if we can find them.
+    static _detectOne(candidates, exeName) {
+        result := { path: "", exe: "", version: "" }
+        for dir in candidates {
+            exePath := dir . "\" . exeName
+            if (FileExist(exePath)) {
+                result.path := dir
+                result.exe  := exePath
+                result.version := Detect._exeVersion(exePath)
+                return result
+            }
+        }
+        return result
+    }
+
+    ; Read file version metadata via COM. Returns "" if no version resource.
+    static _exeVersion(path) {
+        try {
+            fso := ComObject("Scripting.FileSystemObject")
+            v := fso.GetFileVersion(path)
+            return v != "" ? v : "unknown"
+        } catch as e {
+            return "unknown"
+        }
+    }
+
+    ; Per-character framework preference. Reads from State; defaults to
+    ; whatever the primary detected framework is.
+    static frameworkForChar(charName) {
+        prefs := State.get("char_framework", Map())
+        if (prefs.Has(charName))
+            return prefs[charName]
+        ; Default: primary detected framework
+        return Detect.framework()
+    }
+
+    static setFrameworkForChar(charName, framework) {
+        prefs := State.get("char_framework", Map())
+        prefs[charName] := framework
+        State.set("char_framework", prefs)
+    }
+
     static characters() {
-        roster := State.get("roster", [])
-        return roster
+        return State.get("roster", [])
     }
 }

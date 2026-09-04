@@ -15,16 +15,33 @@
 --           core/compat_ashita.lua.
 -- ============================================================================
 
+-- ----------------------------------------------------------------------------
+-- Framework detection MUST run before anything else. On Windower it's a
+-- no-op; on Ashita it installs the windower.* compat shim so the rest of
+-- the addon runs unchanged.
+-- ----------------------------------------------------------------------------
+require('core.framework')  -- populates FW.* and (on Ashita) shims windower.*
+
+_addon = _addon or {}
 _addon.name     = 'Chharbar'
 _addon.author   = 'Chharizard'
 _addon.version  = '5.0.0'
 _addon.commands = { 'cb', 'chharbar' }
 
+-- On Ashita, addon meta lives at _G.addon (different name/field structure).
+-- Set it too so both frameworks see consistent identifiers.
+if FW and FW.is_ashita then
+    addon.name    = 'Chharbar'
+    addon.author  = 'Chharizard'
+    addon.version = '5.0.0'
+end
+
 -- ----------------------------------------------------------------------------
--- Core framework MUST load first. It defines CHB, register handlers, cmd
--- dispatcher, and the widget helpers every module depends on.
+-- Now load the internal framework (CHB namespace, widget helpers, cmd
+-- dispatcher). This depends on windower.* being available (native on
+-- Windower, shimmed on Ashita by the require above).
 -- ----------------------------------------------------------------------------
-require('core.framework')
+require('core.internal_framework')
 
 -- Shared helpers used by target / distance / targetinfo. Load before those
 -- modules so they can call into it.

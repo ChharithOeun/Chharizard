@@ -26,9 +26,19 @@ class Launcher {
     static launchCharacter(char) {
         if (char = "")
             throw Error("Empty character name")
-        Launcher.launchFramework()
-        Events.emit("launcher:char", { name: char })
-        log("[Launcher] launched for character: " . char)
+        ; Respect per-char framework preference (v5.4.0+)
+        fw := Detect.frameworkForChar(char)
+        info := Detect.all()
+        exe := ""
+        if (fw = "windower" || (fw = "auto" && info.windower.installed))
+            exe := info.windower.exe
+        else if (fw = "ashita" || (fw = "auto" && info.ashita.installed))
+            exe := info.ashita.exe
+        if (exe = "")
+            throw Error("No framework available for " . char)
+        log("[Launcher] " . char . " -> " . exe . " (fw=" . fw . ")")
+        Run(exe, SubStr(exe, 1, InStr(exe, "", , -1) - 1))
+        Events.emit("launcher:char", { name: char, framework: fw, exe: exe })
         return char
     }
 
