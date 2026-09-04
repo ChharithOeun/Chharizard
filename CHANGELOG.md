@@ -13,6 +13,17 @@ All notable changes to Chharizard will be documented here. Format loosely follow
 - v5.5.0 — Chharcam (camera) — port XICamera DLL, wrap in Chharizard commands
 - v5.6.0 — Chhargear (gearswap builder) — GUI to generate `gearswap/data/JOB_Char.lua` from item DB
 
+## [5.4.2] — 2026-09-03
+
+### Added
+- **Real widget rendering on Ashita v4** — replaces the v5.4.0 stubs. `compat_ashita.lua` now maintains a central widget registry drawn each frame via a single `d3d_present` handler using imgui. Text widgets support: text content, position, color/alpha, background color/alpha/visibility, font size, stroke, right-justification, destroy. Chharbar HUDs now render on Ashita the same as Windower.
+- **Auto-update on launch** — `Chharizard.ahk` startup fires a non-blocking version check 1.5s after the main window shows. If a newer release exists on GitHub, prompts with tag comparison + first 800 chars of changelog. Accept → download → apply → auto-restart the exe on the new version.
+- **`auto_update_on_launch` preference** (default: true) — toggle in the Update tab.
+
+### Deferred to v5.4.3
+- Ashita image widget rendering (texture upload via primitive manager)
+- Any per-event packet parsing gaps discovered during real Ashita testing
+
 ## [5.4.0] — 2026-09-03
 
 ### Added

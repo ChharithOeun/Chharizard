@@ -17,6 +17,14 @@ class UpdateTab {
             . "a one-click upgrade. Your local data/ folder is preserved.")
 
         gui.SetFont("s10 c40e0e8")
+        ; v5.4.2: auto-check on launch preference
+        autoOn := State.get("auto_update_on_launch", true)
+        gui.SetFont("s9 cCCCCCC")
+        cb := gui.Add("Checkbox", "x30 y+15 vUpdateAutoCheck", "Check for updates automatically when Chharizard starts")
+        cb.Value := autoOn ? 1 : 0
+        cb.OnEvent("Click", (ctrl, *) => (State.set("auto_update_on_launch", ctrl.Value = 1), State.save()))
+
+        gui.SetFont("s10 c40e0e8")
         gui.Add("Button", "x30 y+15 w200", "Check for updates")
             .OnEvent("Click", (*) => UpdateTab._check())
         gui.Add("Button", "x+10 w200 vUpdateApplyBtn", "Download and install")

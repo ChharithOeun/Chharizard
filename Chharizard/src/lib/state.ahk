@@ -75,6 +75,7 @@ class State {
         d["enabled_by_char"] := Map()
         d["ui_prefs"] := Map("theme", "dark", "startup_tab", "dashboard")
         d["ai_enabled"] := false
+        d["auto_update_on_launch"] := true
         d["discord_bridge_enabled"] := false
         d["rpc_pipe_name"] := "\\.\pipe\chharizard"
         return d
