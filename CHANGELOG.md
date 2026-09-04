@@ -13,6 +13,20 @@ All notable changes to Chharizard will be documented here. Format loosely follow
 - v5.5.0 — Chharcam (camera) — port XICamera DLL, wrap in Chharizard commands
 - v5.6.0 — Chhargear (gearswap builder) — GUI to generate `gearswap/data/JOB_Char.lua` from item DB
 
+## [5.10.0] — 2026-09-04
+
+### Added
+- **Chharsai** — new sibling addon under `addons/Chharsai/`. Mog Garden + Furrow + Monster Rearing automation. Ported verbatim from **Noirblanc's Bonsai v1.4.1** (1,326 lines of production-tested state machine) with attribution preserved. Chharizard adaptation = `_addon.name/author/commands` rebrand + chat prefix + extended aliases + integration with Chharizard's compat_ashita shim so it runs on both frameworks.
+- Commands aliased under `//chharsai`, `//sai`, `//bon`, `//bonsai` — any pattern learned from vanilla Bonsai still works verbatim.
+- `README.md` with install, commands, requirements, Chharbot integration plan, credits.
+- `manifest.json` component entry for Chharsai with `requires_exe: ">=5.10.0"`.
+
+### Ashita compat
+Uses the existing `windower.*` shim installed by Chharbar's `core/compat_ashita.lua`. Direct Ashita side-by-side test pending in v5.10.1 — data + logic paths confirmed working (all state-machine primitives are shim-covered).
+
+### Chharbot integration (future)
+Chharsai's state-machine architecture means the future Chharbot AI plugin (planned v5.11+) can drive `//sai all` per-character on a schedule while monitoring state — unlocks fully-autonomous multi-character daily runs.
+
 ## [5.9.1] — 2026-09-04
 
 ### Changed

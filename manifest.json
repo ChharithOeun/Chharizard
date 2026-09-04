@@ -1,6 +1,6 @@
 {
   "manifest_version": 1,
-  "chharizard": "5.9.1",
+  "chharizard": "5.10.0",
   "released_at": "2026-09-04",
   "components": {
     "Chharbar": {
@@ -25,6 +25,12 @@
       "path": "addons/Chharcam/Chharcam.lua",
       "version": "5.8.0",
       "requires_exe": ">=5.8.0",
+      "type": "lua-addon"
+    },
+    "Chharsai": {
+      "path": "addons/Chharsai/Chharsai.lua",
+      "version": "5.10.0",
+      "requires_exe": ">=5.10.0",
       "type": "lua-addon"
     }
   },
