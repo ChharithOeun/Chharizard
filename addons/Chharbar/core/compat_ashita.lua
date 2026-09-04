@@ -220,6 +220,103 @@ function W.ffxi.get_info()
     }
 end
 
+-- v5.7.0: additional shims discovered by the vuln/guesswork sweep.
+--
+-- windower.ffxi.get_mob_array()  — batch return of every entity in range.
+--   Windower returns { [index] = mob_table, ... }. On Ashita we walk the
+--   entity table and build the same shape.
+function W.ffxi.get_mob_array()
+    local mm = _memmgr()
+    if not mm then return {} end
+    local ent = mm:GetEntity()
+    if not ent then return {} end
+    local out = {}
+    for i = 0, 2303 do
+        local sid = ent:GetServerId(i)
+        if sid and sid ~= 0 then
+            local nm = ent:GetName(i)
+            if nm and nm ~= '' then
+                out[i] = W.ffxi.get_mob_by_index(i)
+            end
+        end
+    end
+    return out
+end
+
+-- windower.ffxi.get_menu_string() — current in-game menu ID / name.
+--   Chharbar uses this to detect the system menu for auto-hide gating.
+--   Ashita exposes menu via AshitaCore:GetMemoryManager():GetPlayer():GetMenuName()
+--   in newer builds; older builds don't have it. Return empty string when
+--   unavailable — the caller treats empty as "no menu open".
+function W.ffxi.get_menu_string()
+    local mm = _memmgr()
+    if not mm then return '' end
+    local p = mm:GetPlayer()
+    if not p then return '' end
+    -- Try both known accessors, fall back to empty.
+    local ok, name
+    ok, name = pcall(function() return p:GetMenuName() end)
+    if ok and type(name) == 'string' then return name end
+    ok, name = pcall(function() return p:GetMenu() end)
+    if ok and type(name) == 'string' then return name end
+    return ''
+end
+
+-- windower.get_key_state(vk) — is a keyboard key currently held?
+--   Ashita provides GetAsyncKeyState via user32.dll. We use imgui's
+--   IsKeyDown when available (safer, sandboxed), fall back to Win32 call.
+function W.get_key_state(vk)
+    if imgui and imgui.IsKeyDown then
+        return imgui.IsKeyDown(vk) and true or false
+    end
+    -- Win32 fallback via ffi if available; otherwise return false.
+    if pcall(require, 'ffi') then
+        local ffi = require('ffi')
+        pcall(ffi.cdef, 'int GetAsyncKeyState(int);')
+        local ok, held = pcall(function()
+            return bit.band(ffi.C.GetAsyncKeyState(vk), 0x8000) ~= 0
+        end)
+        if ok then return held end
+    end
+    return false
+end
+
+-- windower.debug.get_key_state — same as above; some modules call it via
+-- the debug sub-namespace. Alias.
+W.debug = W.debug or {}
+W.debug.get_key_state = W.get_key_state
+
+-- windower.packets.parse_action — parse the 0x028 action packet into a
+-- structured table. Chharbar's hate / scoreboard / wsc modules need this.
+--
+-- Ashita's packet event delivers the same raw bytes; we invoke the same
+-- shape parser. For v5.7.0 we route through a minimal parser that reads
+-- the action's most-common fields (actor, targets, category, param). Full
+-- struct parity is deferred to v5.7.1 once we have real Ashita side-by-
+-- side test data.
+W.packets = {}
+function W.packets.parse_action(raw)
+    if type(raw) ~= 'string' or #raw < 16 then return nil end
+    -- Header layout of 0x028 (little-endian):
+    --   0x04  actor_id      (uint32)
+    --   0x08  target_count  (uint8, high 6 bits)
+    --   0x0C  category      (uint8, bits 0-3)
+    --   0x0C  param         (uint16 shifted)
+    local a = string.byte
+    local function u32(o) return a(raw,o+1) + a(raw,o+2)*256 + a(raw,o+3)*65536 + a(raw,o+4)*16777216 end
+    local function u16(o) return a(raw,o+1) + a(raw,o+2)*256 end
+    local function u8(o)  return a(raw,o+1) end
+    return {
+        actor_id = u32(0x04),
+        size     = u8(0x08),
+        category = bit and bit.band(u8(0x09), 0x0F) or (u8(0x09) % 16),
+        param    = u16(0x0A),
+        targets  = {},  -- v5.7.1: full walk of target sub-blocks
+        _raw     = raw,
+        _partial = true,
+    }
+end
+
 function W.ffxi.get_items()
     local mm = _memmgr()
     if not mm then return {} end

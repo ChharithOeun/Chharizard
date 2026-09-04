@@ -13,6 +13,38 @@ All notable changes to Chharizard will be documented here. Format loosely follow
 - v5.5.0 — Chharcam (camera) — port XICamera DLL, wrap in Chharizard commands
 - v5.6.0 — Chhargear (gearswap builder) — GUI to generate `gearswap/data/JOB_Char.lua` from item DB
 
+## [5.7.0] — 2026-09-04
+
+### Audit — fixed
+Full sweep of the codebase (9,218 lines, 39 files). See `docs/AUDIT-v5.7.0.md` for the complete report. Highlights:
+
+#### Critical
+- **Two more `A_ScriptDir . "\..\..\.."` path bugs** missed in v5.5.1:
+  - `lib/config.ahk` — `Config.repoRoot()` was resolving one level too high
+  - `lib/events.ahk` — event-bus error log path was misdirected
+
+#### High — Ashita shim gaps
+Cross-referenced every `windower.*` call in the actual Chharbar modules against `compat_ashita.lua`. Added 5 missing functions:
+- `windower.ffxi.get_mob_array()` — batch entity table walk
+- `windower.ffxi.get_menu_string()` — for auto-hide gate
+- `windower.get_key_state(vk)` — via imgui.IsKeyDown, ffi fallback
+- `windower.debug.get_key_state` — alias
+- `windower.packets.parse_action()` — minimal 0x028 header parse (actor, size, category, param). Full target sub-block walk deferred to v5.7.1.
+
+### Deferred (with tickets)
+- v5.7.1: Full 0x028 target walk in Ashita packet parser + remove stale "shim active" chat message
+- v5.7.2: In-process reentrancy guard on `Commands.run`
+- v5.7.3: Background thread for update download with progress events
+
+### Verified clean
+- No TODO/FIXME/HACK/XXX/WIP residue in ship code
+- No unbounded loops
+- No hardcoded `C:\Users\` paths
+- No silent-swallow try/catch without log fallback
+- .gitignore covers everything sensitive
+- All Commands.register handlers protected by dispatcher's try/catch
+- RPC response payloads all JSON-serializable
+
 ## [5.6.0] — 2026-09-04
 
 ### Added

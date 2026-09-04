@@ -20,7 +20,7 @@
 ; ----------------------------------------------------------------------------
 global CHZ := {
     name:    "Chharizard",
-    version: "5.6.0",
+    version: "5.7.0",
     author:  "Chharizard",
     repo:    "https://github.com/ChharithOeun/Chharizard",
     api:     "https://api.github.com/repos/ChharithOeun/Chharizard/releases/latest"

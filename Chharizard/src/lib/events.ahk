@@ -32,7 +32,7 @@ class Events {
             catch as e {
                 ; Don't let a bad subscriber take down the bus
                 try FileAppend("[events] handler for " . evt . " threw: " . e.Message . "`n",
-                               A_ScriptDir . "\..\..\..\Chharizard.log", "UTF-8")
+                               A_ScriptDir . "\..\..\Chharizard.log", "UTF-8")
             }
         }
     }

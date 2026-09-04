@@ -18,7 +18,7 @@ class Config {
         s := State.get("chharizard_repo", "")
         if (s != "" && DirExist(s))
             return s
-        return A_ScriptDir . "\..\..\.."
+        return A_ScriptDir . "\..\.."
     }
 
     ; Where Chharbar's data/ folder lives
