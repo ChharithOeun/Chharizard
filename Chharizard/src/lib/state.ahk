@@ -18,7 +18,7 @@
 
 class State {
     static _data := Map()
-    static _path := A_ScriptDir . "\..\..\..\data\chharizard-state.json"
+    static _path := A_ScriptDir . "\..\..\data\chharizard-state.json"
     static _dirty := false
 
     static load() {
@@ -38,7 +38,7 @@ class State {
 
     static save() {
         try {
-            DirCreate(A_ScriptDir . "\..\..\..\data")
+            DirCreate(A_ScriptDir . "\..\..\data")
             text := JSON.Stringify(State._data, "  ")
             FileDelete(State._path)
             FileAppend(text, State._path, "UTF-8")
@@ -70,7 +70,7 @@ class State {
         d["last_launch"] := ""
         d["framework"] := "none"
         d["framework_path"] := ""
-        d["chharizard_repo"] := A_ScriptDir . "\..\..\.."  ; parent of Chharizard/
+        d["chharizard_repo"] := A_ScriptDir . "\..\.."  ; parent of Chharizard/
         d["roster"] := []
         d["enabled_by_char"] := Map()
         d["ui_prefs"] := Map("theme", "dark", "startup_tab", "dashboard")

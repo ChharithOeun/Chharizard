@@ -104,7 +104,7 @@ Commands.register("log.tail", (args) => (
 ))
 
 _logTail(n) {
-    path := A_ScriptDir . "\..\..\..\Chharizard.log"
+    path := A_ScriptDir . "\..\..\Chharizard.log"
     if (!FileExist(path)) return ""
     text := FileRead(path, "UTF-8")
     lines := StrSplit(text, "`n")

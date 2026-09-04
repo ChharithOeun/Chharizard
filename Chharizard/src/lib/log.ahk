@@ -4,7 +4,7 @@
 ; ============================================================================
 
 global LogState := {
-    path: A_ScriptDir . "\..\..\..\Chharizard.log",
+    path: A_ScriptDir . "\..\..\Chharizard.log",
     maxBytes: 500 * 1024
 }
 

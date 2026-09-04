@@ -13,6 +13,22 @@ All notable changes to Chharizard will be documented here. Format loosely follow
 - v5.5.0 — Chharcam (camera) — port XICamera DLL, wrap in Chharizard commands
 - v5.6.0 — Chhargear (gearswap builder) — GUI to generate `gearswap/data/JOB_Char.lua` from item DB
 
+## [5.5.0] — 2026-09-04
+
+### Added
+- **RPC listener** — file-based transport at `data/rpc/inbox/` (write requests) ↔ `data/rpc/outbox/` (read responses). Poll interval 250ms, rate limit 10/sec, auto-deletes processed inbox files.
+- **JSON protocol** with correlation IDs — see `docs/RPC-PROTOCOL.md` for full spec + Python / PowerShell / Node client examples.
+- **`Commands.run()` fully exposed over RPC** — every UI action (roster, modules, launcher, update, tune) callable by any external process.
+- **`rpc.ping`** and **`rpc.status`** commands for external liveness checks.
+- **Plugins tab now shows RPC status** — running/stopped, inbox/outbox counts, folder paths. "Send test ping" button verifies the dispatcher.
+
+### Command surface additions
+- `rpc.ping`   → `"pong"`
+- `rpc.status` → `{running, inbox, outbox, inboxPending, outboxUnread, rateWindow}`
+
+### Deferred to v5.5.1
+- Named-pipe transport (`\\.\pipe\chharizard`) for sub-100ms latency. Same JSON protocol — clients switch transport without protocol changes.
+
 ## [5.4.2] — 2026-09-03
 
 ### Added

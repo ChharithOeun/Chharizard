@@ -21,7 +21,34 @@ class PluginsTab {
             . "there, restart Chharizard, and it registers itself. Future "
             . "Chharbot AI and Discord wiki-bridge will ship as plugins.")
 
-        PluginsTab.listCtrl := gui.Add("ListBox", "x30 y+15 w900 h300 vPluginsList")
+        ; --- RPC status (v5.5.0) -------------------------------------------
+        gui.SetFont("s10 bold cffd732")
+        gui.Add("Text", "x30 y+15", "External RPC (v5.5.0)")
+
+        gui.SetFont("s9 cCCCCCC")
+        rpcStatus := RPC.status()
+        gui.Add("Text", "x30 y+5 w900",
+            "Status: " . (rpcStatus.running ? "listening" : "stopped")
+            . "  |  inbox pending: " . rpcStatus.inboxPending
+            . "  |  outbox unread: " . rpcStatus.outboxUnread)
+        gui.Add("Text", "x30 y+3 w900", "Inbox:  " . rpcStatus.inbox)
+        gui.Add("Text", "x30 y+3 w900", "Outbox: " . rpcStatus.outbox)
+        gui.Add("Text", "x30 y+3 w900",
+            "Any external process (Discord bot, AI, Python) can drop JSON "
+            . "requests in inbox/ and read responses from outbox/. See "
+            . "docs/RPC-PROTOCOL.md for full protocol + client examples.")
+
+        gui.SetFont("s10 c40e0e8")
+        gui.Add("Button", "x30 y+10 w200", "Open RPC folder")
+            .OnEvent("Click", (*) => Run("explorer.exe " . RPC._inbox . "\.."))
+        gui.Add("Button", "x+10 w200", "Send test ping")
+            .OnEvent("Click", (*) => PluginsTab._testPing())
+
+        ; --- Plugins section ------------------------------------------------
+        gui.SetFont("s10 bold cffd732")
+        gui.Add("Text", "x30 y+20", "Plugins")
+
+        PluginsTab.listCtrl := gui.Add("ListBox", "x30 y+10 w900 h240 vPluginsList")
         PluginsTab._render()
 
         gui.SetFont("s10 c40e0e8")
@@ -42,6 +69,12 @@ class PluginsTab {
 
     static count() {
         return PluginsTab._plugins.Length
+    }
+
+    static _testPing() {
+        result := Commands.run("rpc.ping")
+        MsgBox("RPC dispatcher result:`n`nok=" . (result.ok ? "true" : "false")
+            . "`ndata=" . (result.HasProp("data") ? result.data : "(none)"))
     }
 
     static _render() {

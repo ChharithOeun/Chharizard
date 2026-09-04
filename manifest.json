@@ -1,0 +1,30 @@
+{
+  "manifest_version": 1,
+  "chharizard": "5.6.0",
+  "released_at": "2026-09-04",
+  "components": {
+    "Chharbar": {
+      "path": "addons/Chharbar/Chharbar.lua",
+      "version": "5.0.0",
+      "requires_exe": ">=5.0.0",
+      "type": "lua-addon"
+    },
+    "TUNE-FFXI.ps1": {
+      "path": "Chharizard/tune/TUNE-FFXI.ps1",
+      "version": "1.0.0",
+      "requires_exe": ">=5.3.0",
+      "type": "powershell-script"
+    },
+    "REVERT-FFXI.ps1": {
+      "path": "Chharizard/tune/REVERT-FFXI.ps1",
+      "version": "1.0.0",
+      "requires_exe": ">=5.3.0",
+      "type": "powershell-script"
+    }
+  },
+  "planned": {
+    "Chharsai": { "version": null, "planned_for": "5.7.0" },
+    "Chharcam": { "version": null, "planned_for": "5.8.0" },
+    "Chhargear": { "version": null, "planned_for": "5.9.0" }
+  }
+}
