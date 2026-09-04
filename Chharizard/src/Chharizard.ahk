@@ -20,7 +20,7 @@
 ; ----------------------------------------------------------------------------
 global CHZ := {
     name:    "Chharizard",
-    version: "5.2.0",
+    version: "5.3.0",
     author:  "Chharizard",
     repo:    "https://github.com/ChharithOeun/Chharizard",
     api:     "https://api.github.com/repos/ChharithOeun/Chharizard/releases/latest"
@@ -39,6 +39,7 @@ global CHZ := {
 #Include lib\commands.ahk     ; Every UI action + AI action + RPC call routes here
 #Include lib\updater.ahk      ; GitHub Releases auto-updater (v5.2.0)
 #Include lib\launcher.ahk     ; Windower/Ashita launcher (v5.2.0)
+#Include lib\tune.ahk         ; Embedded FFXI system tuner (v5.3.0)
 
 ; ----------------------------------------------------------------------------
 ; Load UI (main window + all tab modules).

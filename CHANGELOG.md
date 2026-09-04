@@ -13,6 +13,22 @@ All notable changes to Chharizard will be documented here. Format loosely follow
 - v5.5.0 — Chharcam (camera) — port XICamera DLL, wrap in Chharizard commands
 - v5.6.0 — Chhargear (gearswap builder) — GUI to generate `gearswap/data/JOB_Char.lua` from item DB
 
+## [5.3.0] — 2026-09-03
+
+### Added
+- **`Chharizard/tune/`** — vendored `TUNE-FFXI.ps1` and `REVERT-FFXI.ps1` from the standalone tuner. Ship inside the companion so users don't need a separate .bat.
+- **`Chharizard/src/lib/tune.ahk`** — launches the tune / revert scripts with UAC elevation via `*RunAs` prefix. Bubbles up the `.ps1` log for in-app viewing.
+- **Tune tab** — functional. Apply / Revert buttons, live log tail from the .ps1's own log file, per-tweak backup managed by the underlying PowerShell.
+
+### Command surface additions
+- `tune.apply`   → runs TUNE-FFXI.ps1 elevated
+- `tune.revert`  → runs REVERT-FFXI.ps1 elevated (restores every change from backup.json)
+- `tune.status`  → `{applied, backup, log}` — for AI / RPC callers to check state
+- `tune.log`     → tail last N lines of the tuner log
+
+### Changed
+- `Chharizard.ahk` bumped to v5.3.0
+
 ## [5.2.0] — 2026-09-03
 
 ### Added
