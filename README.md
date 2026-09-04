@@ -158,6 +158,20 @@ Chharsai (`//bon`), Chharcam (`//cam`), Chhargear (`//gear`) — full list in [`
 
 ---
 
+## Ecosystem
+
+Part of a larger FFXI stack:
+
+| Repo | Role |
+|------|------|
+| **Chharizard** (this repo) | Client-side companion + HUD suite for Windower / Ashita |
+| **[DemonCore](https://github.com/ChharithOeun/DemonCore)** | Server-side stack — LandSandBoat + Chharbot AI agent + 3 MCP servers + `lsb_version_sync` (auto-match retail `CLIENT_VER`) |
+| **[llm-amd-windows](https://github.com/ChharithOeun/llm-amd-windows)** | Local LLM runtime on AMD GPU (powers Chharbot) |
+
+Chharizard v5.8.0+ will grow a **Server tab** that talks to DemonCore's MCP endpoints for unified private-server ops from the same window.
+
+---
+
 ## Credits
 
 Chharizard stands on the shoulders of giants. Every addon or pattern that inspired a component is credited both here and in the corresponding source file's header. **If your work is used and you're not listed, open an issue and I'll fix it immediately.**
